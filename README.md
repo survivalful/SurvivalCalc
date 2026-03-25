@@ -101,7 +101,7 @@ Or run **Survivalcalc_Uninstaller.exe** directly.
 
 ## 📬 Support
 
-* 🌐 **Website**: [https://Survivalful.de/](https://git.survivalful.de/Survivalful/SurvivalCalc)
+* 🌐 **Website**: [https://git.survivalful.de/](https://git.survivalful.de/Survivalful/SurvivalCalc)
 * 📧 **Email**: [team@survivalful.de](mailto:team@survivalful.de)
 
 ---
