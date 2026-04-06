@@ -1,6 +1,8 @@
+---
+
 # 🧮 Survivalcalc
 
-A modern desktop calculator with advanced features for area and volume calculations, built with Python and Tkinter.
+A modern desktop calculator with advanced features for area, volume, and electricity calculations, built with Python and Tkinter.
 
 ---
 
@@ -9,13 +11,15 @@ A modern desktop calculator with advanced features for area and volume calculati
 * 🔢 **Standard Calculator** – Basic arithmetic with real-time computation
 * 📐 **Area Calculations** – Square, rectangle, circle, triangle, trapezoid, cylinder, sphere, cone
 * 📦 **Volume Calculations** – Cube, rectangular prism, cylinder, cone, sphere, tetrahedron, trapezoidal prism
+* ⚡ **Electricity Calculations** – Voltage, current, resistance, and power with various formulas, plus a color band resistance calculator.
 * 🌙 **Dark Mode** – Toggle between light and dark themes
 * 🌍 **Multi-Language Support** – German (DE) and English (EN)
-* 📏 **Unit System** – Support for mm, cm, m, km with automatic conversion
+* 📏 **Unit System** – Support for pm, nm, μm, mm, cm, dm, m, km, Mm, Gm with automatic conversion
 * 🔄 **Adjustable Rounding** – Configure decimal places (0–20)
 * 🕓 **Calculation History** – Track last 3 calculations with SQLite storage
 * ⚙️ **Persistent Settings** – All preferences saved automatically
 * ⌨️ **Keyboard Support** – Full keyboard shortcuts for calculator operations
+* 🔄 **Automatic Updates** – Notifies you when a new version is available.
 
 ---
 
@@ -48,6 +52,14 @@ A modern desktop calculator with advanced features for area and volume calculati
 5. Select your units
 6. Results update automatically
 
+### Electricity Calculations
+1. Open **Shapes** menu
+2. Select **Electricity**
+3. Choose the quantity to calculate (e.g., Voltage, Current)
+4. Select the formula you want to use (e.g., U = I · R)
+5. Enter your values
+6. Results update automatically
+
 ### Settings
 - Toggle dark mode
 - Enable/disable rounding
@@ -71,7 +83,7 @@ A modern desktop calculator with advanced features for area and volume calculati
 * **OS**: Windows 7 or later
 * **RAM**: 50 MB minimum
 * **Disk Space**: 10 MB
-* **Internet**: Required for initial download only
+* **Internet**: Required for initial download and update checks
 
 ---
 
@@ -101,20 +113,20 @@ Or run **Survivalcalc_Uninstaller.exe** directly.
 
 ## 📬 Support
 
-* 🌐 **Website**: [https://git.survivalful.de/](https://git.survivalful.de/Survivalful/SurvivalCalc)
+* 🌐 **Website**: [https://git.survivalful.de/Survivalful/SurvivalCalc](https://git.survivalful.de/Survivalful/SurvivalCalc)
 * 📧 **Email**: [team@survivalful.de](mailto:team@survivalful.de)
 
 ---
 
 ## 📜 License
 
-MIT License © 2026 Survivalful
+GPL License © 2026 Survivalful
 
 ---
 
 ## 📊 Version Info
 
-* **Version**: 1.0.0
+* **Version**: 1.0.2
 * **Release**: 24.03.2026
 * **Status**: Stable
 
