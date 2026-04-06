@@ -107,8 +107,6 @@ A modern desktop calculator with advanced features for area, volume, and electri
 2. Find **Survivalcalc**
 3. Click **Uninstall**
 
-Or run **Survivalcalc_Uninstaller.exe** directly.
-
 ---
 
 ## 📬 Support
