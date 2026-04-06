@@ -11,7 +11,7 @@ import threading
 import urllib.request     
 import webbrowser         
 
-VERSION_URL = "https://cloud.survivalful.de/s/ydLwqwXdJEj8XwR/download"
+VERSION_URL = ""
 
 def fetch_version_info():
     """Holt die version.json vom Server. Gibt None bei Fehler zurück."""
