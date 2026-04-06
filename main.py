@@ -129,7 +129,7 @@ LANG = {
         "result_current":       "Strom I",
         "result_resistance":    "Wiederstand R",
         "voltage":              "Spannung",
-        "ampere":               "Strom",
+        "current":               "Strom",
         "resistance":           "Widerstand",
         "power":                "Leistung",
         "u":                    "Spannung U",
@@ -267,7 +267,7 @@ def t(key, **kwargs):
         pass
     return text
 
-app_version  = "1.0.0"
+app_version  = "1.0.1"
 app_release  = "24.3.2026"
 app_status   = "Stable"
 dev_e_mail   = "team@survivalful.de"
@@ -350,35 +350,79 @@ load_settings()
 init_db()
 
 def check_for_updates():
-    """
-    Überprüft im Hintergrund auf Updates und zeigt bei Erfolg eine Nachricht an.
-    Diese Funktion wird in einem separaten Thread ausgeführt.
-    """
     try:
         info = fetch_version_info()
         if not info:
-            return  
+            return
 
         latest_version = info.get("version")
         changelog = info.get("changelog", "Keine Informationen verfügbar.")
-        download_url = info.get("download_url") 
-        update_info_url = info.get("update_info_url") 
+        download_url = info.get("installer_url")
 
-        if latest_version and version_is_newer(latest_version, app_version):
-            
-            def show_update_dialog():
-                title = t("update_available_title")
-                message = t("update_available_msg", LATEST=latest_version, CHANGELOG=changelog)
-                
-                if messagebox.askyesno(title, message):
-                    if update_info_url:
-                        webbrowser.open(update_info_url)
+        if not (latest_version and version_is_newer(latest_version, app_version)):
+            return
 
-            root.after(0, show_update_dialog)
+        def show_update_dialog():
+            title = t("update_available_title")
+            message = t("update_available_msg", LATEST=latest_version, CHANGELOG=changelog)
+
+            if not messagebox.askyesno(title, message):
+                return
+
+            # Download-Fenster
+            win = tk.Toplevel(root)
+            win.title("Update wird heruntergeladen...")
+            win.geometry("360x120")
+            win.resizable(False, False)
+            win.config(bg=bg)
+            win.grab_set()
+
+            tk.Label(win, text=f"Version {latest_version} wird heruntergeladen...",
+                     bg=bg, fg=fg, font=("Arial", 11)).pack(pady=(18, 6))
+
+            progress = tk.DoubleVar()
+            bar = tk.Scale(win, variable=progress, from_=0, to=100,
+                           orient="horizontal", state="disabled",
+                           bg=bg, fg=fg, troughcolor="#2c2c2e",
+                           highlightthickness=0, relief="flat", sliderrelief="flat")
+            bar.pack(fill="x", padx=24)
+
+            status_lbl = tk.Label(win, text="0%", bg=bg, fg="#888888", font=("Arial", 10))
+            status_lbl.pack()
+
+            def do_download():
+                try:
+                    # Installer in TEMP speichern
+                    import tempfile
+                    tmp_dir = tempfile.gettempdir()
+                    installer_path = os.path.join(tmp_dir, "Survivalcalc_Installer.exe")
+
+                    def reporthook(block_num, block_size, total_size):
+                        if total_size > 0:
+                            pct = min(100, block_num * block_size * 100 / total_size)
+                            progress.set(pct)
+                            status_lbl.config(text=f"{int(pct)}%")
+                            win.update_idletasks()
+
+                    urllib.request.urlretrieve(download_url, installer_path, reporthook)
+
+                    win.destroy()
+
+                    # Installer starten und App beenden
+                    import subprocess
+                    subprocess.Popen([installer_path])
+                    root.quit()
+
+                except Exception as e:
+                    win.destroy()
+                    messagebox.showerror("Fehler", f"Download fehlgeschlagen:\n{e}")
+
+            threading.Thread(target=do_download, daemon=True).start()
+
+        root.after(0, show_update_dialog)
 
     except Exception as e:
         print(f"Update-Check fehlgeschlagen: {e}")
-
 
 
 UNIT_FACTORS = {
@@ -395,6 +439,28 @@ VOLTAGE_UNITS = ["pV", "nV", "μV", "mV", "V", "kV", "MV", "GV"]
 CURRENT_UNITS = ["pA", "nA", "μA", "mA", "A", "kA", "MA", "GA"]
 RESISTANCE_UNITS = ["pΩ", "nΩ", "μΩ", "mΩ", "Ω", "kΩ", "MΩ", "GΩ"]
 POWER_UNITS = ["pW", "nW", "μW", "mW", "W", "kW", "MW", "GW"]
+
+# Widerstand Farbcode (4-stufig: 1. Band, 2. Band, Multiplikator, Toleranz)
+COLOR_DIGITS = {
+    "Black": 0, "Brown": 1, "Red": 2, "Orange": 3, "Yellow": 4,
+    "Green": 5, "Blue": 6, "Violet": 7, "Grey": 8, "White": 9
+}
+COLOR_MULTIPLIER = {
+    "Black": 1, "Brown": 10, "Red": 100, "Orange": 1_000, "Yellow": 10_000,
+    "Green": 100_000, "Blue": 1_000_000, "Violet": 10_000_000, "Grey": 100_000_000,
+    "White": 1_000_000_000, "Gold": 0.1, "Silver": 0.01
+}
+COLOR_TOLERANCE = {
+    "Brown": "±1%", "Red": "±2%", "Green": "±0.5%", "Blue": "±0.25%",
+    "Violet": "±0.1%", "Grey": "±0.05%", "Gold": "±5%", "Silver": "±10%",
+    "None": "±20%"
+}
+
+COLOR_HEX = {
+    "Black": "#000000", "Brown": "#8B4513", "Red": "#FF0000", "Orange": "#FFA500",
+    "Yellow": "#FFFF00", "Green": "#008000", "Blue": "#0000FF", "Violet": "#8A2BE2",
+    "Grey": "#808080", "White": "#FFFFFF", "Gold": "#D4AF37", "Silver": "#C0C0C0", "None": "#CCCCCC"
+}
 
 def half(first, last):
     return first / last
@@ -552,6 +618,8 @@ def rebuild_menu():
     resistance.add_command(label=t("r_u_i"), command=resistance_u_i)
     resistance.add_command(label=t("r_u_p"), command=resistance_u_p)
     resistance.add_command(label=t("r_p_i"), command=resistance_p_i)
+    resistance.add_separator()
+    resistance.add_command(label="Widerstand (Farbcode)", command=resistance_color_bands)
     electricity_menu.add_cascade(label=t("power"),menu=power)
     power.add_command(label=t("u_i_r"), command=power_u_i)
     power.add_command(label=t("u_r_p"), command=power_i_r)
@@ -1359,6 +1427,172 @@ def resistance_p_i():
     make_input_row(content_frame, t("p"), var_p, 1, unit_p, POWER_UNITS)
     make_input_row(content_frame, t("i"), var_i, 3, unit_i, CURRENT_UNITS)
     result = make_result_label(content_frame, 5)
+
+def resistance_color_bands():
+    clear_frame(); content_frame.columnconfigure(0, weight=1)
+    colors_digit = ["Black", "Brown", "Red", "Orange", "Yellow", "Green", "Blue", "Violet", "Grey", "White"]
+    colors_multiplier = ["Black", "Brown", "Red", "Orange", "Yellow", "Green", "Blue", "Violet", "Grey", "White", "Gold", "Silver"]
+    colors_tolerance = ["Brown", "Red", "Green", "Blue", "Violet", "Grey", "Gold", "Silver", "None"]
+
+    b1 = tk.StringVar(value="Brown")
+    b2 = tk.StringVar(value="Black")
+    b3 = tk.StringVar(value="Black")
+    b4 = tk.StringVar(value="Brown")
+    b5 = tk.StringVar(value="Gold")
+    ring_mode = tk.IntVar(value=4)
+
+    def format_value(r):
+        if r >= 1_000_000:
+            return f"{round(r/1_000_000, round_num)} MΩ"
+        if r >= 1_000:
+            return f"{round(r/1_000, round_num)} kΩ"
+        if r >= 1:
+            return f"{round(r, round_num)} Ω"
+        if r >= 0.001:
+            return f"{round(r*1000, round_num)} mΩ"
+        return f"{round(r*1_000_000, round_num)} μΩ"
+
+    def update_bands():
+        positions = bands_5 if ring_mode.get() == 5 else bands_4
+        vars_active = [b1, b2, b3, b4, b5] if ring_mode.get() == 5 else [b1, b2, b3, b5]
+        for idx, item in enumerate(band_items):
+            if idx < len(positions):
+                x1, y1, x2, y2 = positions[idx]
+                canvas.coords(item, x1, y1, x2, y2)
+                color_key = vars_active[idx].get()
+                canvas.itemconfig(item, fill=COLOR_HEX.get(color_key, "#000000"), state="normal")
+            else:
+                canvas.itemconfig(item, state="hidden")
+
+    def calc(*a):
+        try:
+            if ring_mode.get() == 4:
+                d1 = COLOR_DIGITS[b1.get()]
+                d2 = COLOR_DIGITS[b2.get()]
+                mul = COLOR_MULTIPLIER[b3.get()]
+                tol = COLOR_TOLERANCE[b5.get()]
+                r = (d1*10 + d2) * mul
+            else:
+                d1 = COLOR_DIGITS[b1.get()]
+                d2 = COLOR_DIGITS[b2.get()]
+                d3 = COLOR_DIGITS[b3.get()]
+                mul = COLOR_MULTIPLIER[b4.get()]
+                tol = COLOR_TOLERANCE[b5.get()]
+                r = (d1*100 + d2*10 + d3) * mul
+            update_bands()
+            result.config(text=f"R = {format_value(r)} {tol}  ({r} Ω)")
+        except Exception:
+            result.config(text="")
+
+    for v in (b1, b2, b3, b4, b5): v.trace_add("write", calc)
+
+    def rebuild_dropdowns():
+        for w in dropdown_widgets:
+            w.destroy()
+        dropdown_widgets.clear()
+        if ring_mode.get() == 4:
+            rows = [
+                ("1. Band (Ziffer 1)", b1, colors_digit),
+                ("2. Band (Ziffer 2)", b2, colors_digit),
+                ("3. Band (Multiplikator)", b3, colors_multiplier),
+                ("4. Band (Toleranz)", b5, colors_tolerance),
+            ]
+        else:
+            rows = [
+                ("1. Band (Ziffer 1)", b1, colors_digit),
+                ("2. Band (Ziffer 2)", b2, colors_digit),
+                ("3. Band (Ziffer 3)", b3, colors_digit),
+                ("4. Band (Multiplikator)", b4, colors_multiplier),
+                ("5. Band (Toleranz)", b5, colors_tolerance),
+            ]
+        for i, (lbl, var, opts) in enumerate(rows):
+            l, o = make_dropdown(dropdown_frame, lbl, var, i, opts)
+            dropdown_widgets.extend([l, o])
+
+    def on_mode_change():
+        rebuild_dropdowns()
+        update_bands()
+        calc()
+
+    # --- Titel ---
+    make_title_label(content_frame, "Widerstand Farbcode", "", 0)
+
+    # --- Ringmodus-Auswahl ---
+    mode_frame = tk.Frame(content_frame, bg=bg)
+    mode_frame.grid(row=1, column=0, sticky="w", padx=16, pady=(4, 0))
+    tk.Label(mode_frame, text="Ringe:", bg=bg, fg=fg, font=("Arial", 11)).pack(side="left", padx=(0, 8))
+    for val, label in [(4, "4-Ring"), (5, "5-Ring")]:
+        tk.Radiobutton(
+            mode_frame, text=label, variable=ring_mode, value=val,
+            bg=bg, fg=fg,
+            selectcolor="#2c2c2e" if bg_dark else "#dddddd",
+            activebackground=bg, activeforeground=fg,
+            font=("Arial", 11),
+            command=on_mode_change
+        ).pack(side="left", padx=4)
+
+    # --- Canvas ---
+    canvas_width = 180
+    body_left  = 40
+    body_right = 140
+    body_top, body_bottom = 30, 50
+    wire_y = 40
+
+    canvas = tk.Canvas(content_frame, height=70, width=canvas_width,
+                       bg=bg, highlightthickness=0)
+    canvas.grid(row=2, column=0, sticky="w", padx=16, pady=(10, 4))
+
+    canvas.create_rectangle(body_left, body_top, body_right, body_bottom,
+                            fill="#d2b48c", outline="#8b5a2b", width=2)
+    canvas.create_line(body_left,  wire_y, 25,              wire_y, fill="#8b5a2b", width=3)
+    canvas.create_line(body_right, wire_y, canvas_width-20, wire_y, fill="#8b5a2b", width=3)
+
+    bands_4 = [
+        (body_left+10, body_top, body_left+18, body_bottom),
+        (body_left+28, body_top, body_left+36, body_bottom),
+        (body_left+50, body_top, body_left+58, body_bottom),
+        (body_left+70, body_top, body_left+78, body_bottom),
+    ]
+    bands_5 = [
+        (body_left+8,  body_top, body_left+15, body_bottom),
+        (body_left+23, body_top, body_left+30, body_bottom),
+        (body_left+38, body_top, body_left+45, body_bottom),
+        (body_left+56, body_top, body_left+63, body_bottom),
+        (body_left+73, body_top, body_left+80, body_bottom),
+    ]
+
+    band_items = []
+    for coords in bands_4:
+        item = canvas.create_rectangle(*coords, fill="#000000", outline="black")
+        band_items.append(item)
+    item5 = canvas.create_rectangle(*bands_5[4], fill="#000000", outline="black", state="hidden")
+    band_items.append(item5)
+
+    # --- Dropdown-Helfer ---
+    def make_dropdown(parent, label_text, var, row, options):
+        lbl = tk.Label(parent, text=label_text, bg=bg, fg=fg,
+                       font=("Arial", 11), anchor="w")
+        lbl.grid(row=row*2, column=0, sticky="w", pady=(8, 0))
+        om = tk.OptionMenu(parent, var, *options)
+        om.config(bg="#2c2c2e" if bg_dark else "#f0f0f0", fg=fg,
+                  activebackground="#3a3a3c", activeforeground=fg,
+                  relief="flat", highlightthickness=0,
+                  font=("Arial", 11), width=12)
+        om["menu"].config(bg="#2c2c2e" if bg_dark else "#f0f0f0", fg=fg)
+        om.grid(row=row*2+1, column=0, sticky="ew", pady=(2, 2))
+        return lbl, om
+
+    # --- Dropdown-Frame ---
+    dropdown_frame = tk.Frame(content_frame, bg=bg)
+    dropdown_frame.grid(row=3, column=0, sticky="ew", padx=16, pady=(8, 0))
+    dropdown_frame.columnconfigure(0, weight=1)
+    dropdown_widgets = []
+
+    result = make_result_label(content_frame, 4)
+
+    rebuild_dropdowns()
+    update_bands()
+    calc()
 
 def power_u_i():
     clear_frame(); content_frame.columnconfigure(0, weight=1)
