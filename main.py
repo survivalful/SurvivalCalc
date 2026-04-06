@@ -369,7 +369,6 @@ def check_for_updates():
             if not messagebox.askyesno(title, message):
                 return
 
-            # Download-Fenster
             win = tk.Toplevel(root)
             win.title("Update wird heruntergeladen...")
             win.geometry("360x120")
@@ -392,7 +391,6 @@ def check_for_updates():
 
             def do_download():
                 try:
-                    # Installer in TEMP speichern
                     import tempfile
                     tmp_dir = tempfile.gettempdir()
                     installer_path = os.path.join(tmp_dir, "Survivalcalc_Installer.exe")
@@ -408,7 +406,6 @@ def check_for_updates():
 
                     win.destroy()
 
-                    # Installer starten und App beenden
                     import subprocess
                     subprocess.Popen([installer_path])
                     root.quit()
@@ -440,7 +437,6 @@ CURRENT_UNITS = ["pA", "nA", "μA", "mA", "A", "kA", "MA", "GA"]
 RESISTANCE_UNITS = ["pΩ", "nΩ", "μΩ", "mΩ", "Ω", "kΩ", "MΩ", "GΩ"]
 POWER_UNITS = ["pW", "nW", "μW", "mW", "W", "kW", "MW", "GW"]
 
-# Widerstand Farbcode (4-stufig: 1. Band, 2. Band, Multiplikator, Toleranz)
 COLOR_DIGITS = {
     "Black": 0, "Brown": 1, "Red": 2, "Orange": 3, "Yellow": 4,
     "Green": 5, "Blue": 6, "Violet": 7, "Grey": 8, "White": 9
@@ -1514,10 +1510,8 @@ def resistance_color_bands():
         update_bands()
         calc()
 
-    # --- Titel ---
     make_title_label(content_frame, "Widerstand Farbcode", "", 0)
 
-    # --- Ringmodus-Auswahl ---
     mode_frame = tk.Frame(content_frame, bg=bg)
     mode_frame.grid(row=1, column=0, sticky="w", padx=16, pady=(4, 0))
     tk.Label(mode_frame, text="Ringe:", bg=bg, fg=fg, font=("Arial", 11)).pack(side="left", padx=(0, 8))
@@ -1531,7 +1525,6 @@ def resistance_color_bands():
             command=on_mode_change
         ).pack(side="left", padx=4)
 
-    # --- Canvas ---
     canvas_width = 180
     body_left  = 40
     body_right = 140
@@ -1568,7 +1561,6 @@ def resistance_color_bands():
     item5 = canvas.create_rectangle(*bands_5[4], fill="#000000", outline="black", state="hidden")
     band_items.append(item5)
 
-    # --- Dropdown-Helfer ---
     def make_dropdown(parent, label_text, var, row, options):
         lbl = tk.Label(parent, text=label_text, bg=bg, fg=fg,
                        font=("Arial", 11), anchor="w")
@@ -1582,7 +1574,6 @@ def resistance_color_bands():
         om.grid(row=row*2+1, column=0, sticky="ew", pady=(2, 2))
         return lbl, om
 
-    # --- Dropdown-Frame ---
     dropdown_frame = tk.Frame(content_frame, bg=bg)
     dropdown_frame.grid(row=3, column=0, sticky="ew", padx=16, pady=(8, 0))
     dropdown_frame.columnconfigure(0, weight=1)
