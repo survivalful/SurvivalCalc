@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Distribution / Build
+build/
+dist/
+*.egg-info/
+*.spec
+
+# PyInstaller output
+*.exe
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# SQLite database (local history)
+*.db
+*.sqlite
+*.sqlite3
+
+# Settings & user data
+settings.json
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.iml
