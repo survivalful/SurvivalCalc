@@ -1,0 +1,20 @@
+# SurvivalCalc uses only Python standard library packages.
+# No external dependencies required.
+#
+# Minimum Python version: 3.10
+# Recommended Python version: 3.12+
+#
+# The following standard library modules are used:
+#   tkinter       – included since Python 3.1  (on Windows bundled with Python installer)
+#   sqlite3       – included since Python 2.5
+#   math          – included since Python 1.0
+#   json          – included since Python 2.6
+#   threading     – included since Python 1.0
+#   urllib        – included since Python 3.0
+#   webbrowser    – included since Python 1.0
+#   platform      – included since Python 1.5
+#   os, sys       – included since Python 1.0
+#   datetime      – included since Python 2.3
+#
+# Note for Windows users: if tkinter is missing, reinstall Python
+# and make sure "tcl/tk and IDLE" is checked during installation.
