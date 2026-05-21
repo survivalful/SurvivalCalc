@@ -118,7 +118,7 @@ A modern desktop calculator with advanced features for area, volume, and electri
 
 ## 📜 License
 
-GPL License © 2026 Survivalful
+GPL-3.0 © 2026 Survivalful
 
 ---
 
