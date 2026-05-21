@@ -54,11 +54,10 @@ A modern desktop calculator with advanced features for area, volume, and electri
 
 ### Electricity Calculations
 1. Open **Electricity** menu
-2. 2. Select **Electricity**
-3. Choose the quantity to calculate (e.g., Voltage, Current)
-4. Select the formula you want to use (e.g., U = I · R)
-5. Enter your values
-6. Results update automatically
+2. Choose the quantity to calculate (e.g., Voltage, Current)
+3. Select the formula you want to use (e.g., U = I · R)
+4. Enter your values
+5. Results update automatically
 
 ### Settings
 - Toggle dark mode
