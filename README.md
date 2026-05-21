@@ -111,7 +111,7 @@ A modern desktop calculator with advanced features for area, volume, and electri
 
 ## 📬 Support
 
-* 🌐 **Website**: [https://Survivalful.de](https://survivalcalc.survivalful.de)
+* 🌐 **Website**: [https://survivalcalc.survivalful.de](https://survivalcalc.survivalful.de)
 * 📧 **Email**: [team@survivalful.de](mailto:team@survivalful.de)
 
 ---
